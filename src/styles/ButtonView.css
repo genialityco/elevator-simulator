@@ -1,0 +1,71 @@
+/* src/styles/ButtonView.css */
+
+.control-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    gap: 30px; /* Aumenta el espacio entre los botones */
+  }
+  
+  .elevator-button {
+    width: 150px; /* Aumenta el tamaño del botón */
+    height: 150px; /* Aumenta el tamaño del botón */
+    background-color: #333;
+    color: white;
+    border: 2px solid #444;
+    border-radius: 50%;
+    font-size: 48px; /* Aumenta el tamaño del ícono */
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+  }
+  
+  .elevator-button.moving-up {
+    background-color: green;
+    color: white;
+  }
+  .elevator-button:hover {
+    background-color: #555;
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .elevator-button.disabled {
+    cursor: not-allowed;
+    background-color: #999;
+    color: #666;
+    box-shadow: none;
+  }
+  
+  .elevator-button.moving-up {
+    animation: blink 1s infinite;
+  }
+  
+  @keyframes blink {
+    50% {
+      opacity: 0.5;
+    }
+  }
+  
+  .repair-icon {
+    width: 150px; /* Ajusta el tamaño de la imagen para que coincida con los botones */
+    height: 150px; /* Ajusta el tamaño de la imagen para que coincida con los botones */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333; /* Color del ícono */
+    font-size: 48px; /* Tamaño del ícono */
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+  
+  .repair-icon:hover {
+    transform: scale(1.1);
+  }
+  
