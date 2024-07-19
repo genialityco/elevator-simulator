@@ -54,14 +54,16 @@ const ButtonView = () => {
           className="repair-icon"
         >
           <img
-            src="/public/LOGOS_GEN.iality_web-15.svg"
+            src="/LOGOS_GEN.iality_web-15.svg"
             alt="Repair"
             style={{ width: "100%", height: "100%" }}
           />
         </div>
         <button
           className={`elevator-button ${
-            elevatorState === "movingUp" ? "moving-up" : ""
+            elevatorState === "movingUp" || elevatorState === "repaired"
+              ? "moving-up"
+              : ""
           } ${elevatorState === "emergencyLoop" ? "disabled" : ""}`}
           onClick={() => handleButtonClick("movingUp")}
           disabled={isDisabled}
