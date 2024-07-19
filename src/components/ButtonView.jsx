@@ -54,7 +54,7 @@ const ButtonView = () => {
           className="repair-icon"
         >
           <img
-            src="/src/public/LOGOS_GEN.iality_web-15.svg"
+            src="/public/LOGOS_GEN.iality_web-15.svg"
             alt="Repair"
             style={{ width: "100%", height: "100%" }}
           />

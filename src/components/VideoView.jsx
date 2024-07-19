@@ -63,7 +63,7 @@ const VideoView = () => {
     >
       <video
         ref={videoRef}
-        src="/src/public/moving_up.mp4"
+        src="/moving_up.mp4"
         style={{ width: "100%", height: "100%", objectFit: "cover" }}
       />
     </div>
