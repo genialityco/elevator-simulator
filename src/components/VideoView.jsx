@@ -42,7 +42,7 @@ const VideoView = () => {
     video.addEventListener("timeupdate", handleTimeUpdate);
 
     if (elevatorState === "movingUp") {
-      video.currentTime = 20;
+      video.currentTime = 19;
       video.play();
     } else if (elevatorState === "emergencyLoop") {
       video.currentTime = 30;
