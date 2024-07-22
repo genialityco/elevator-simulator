@@ -40,6 +40,8 @@ const VideoView = () => {
     } else if (elevatorState === "repaired") {
       video.currentTime = 19;
       video.play();
+    } else if (elevatorState === "emergency") {
+      video.pause();
     } else {
       video.pause();
       video.currentTime = 0;
