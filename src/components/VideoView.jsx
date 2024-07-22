@@ -20,28 +20,39 @@ const VideoView = () => {
     if (!video) return;
 
     const handleTimeUpdate = () => {
-      if (video.currentTime >= 10 && video.currentTime < 11) {
+      if (
+        video.currentTime >= 29 &&
+        video.currentTime < 30 &&
+        elevatorState === "movingUp"
+      ) {
         set(ref(database, "elevatorState"), "emergencyLoop").catch((error) => {
           console.error("Error updating elevator state:", error);
         });
       }
 
-      if (elevatorState === "emergencyLoop") {
-        if (video.currentTime >= 19) {
-          video.currentTime = 11;
-        }
+      if (elevatorState === "emergencyLoop" && video.currentTime >= 38) {
+        video.currentTime = 31;
+      }
+
+      if (elevatorState === "restart" && video.currentTime >= 19) {
+        video.currentTime = 0;
       }
     };
 
     video.addEventListener("timeupdate", handleTimeUpdate);
 
-    if (elevatorState === "movingUp" || elevatorState === "emergencyLoop") {
+    if (elevatorState === "movingUp") {
+      video.currentTime = 20;
+      video.play();
+    } else if (elevatorState === "emergencyLoop") {
+      video.currentTime = 30;
       video.play();
     } else if (elevatorState === "repaired") {
-      video.currentTime = 19;
+      video.currentTime = 39;
       video.play();
-    } else if (elevatorState === "emergency") {
-      video.pause();
+    } else if (elevatorState === "restart") {
+      video.currentTime = 0;
+      video.play();
     } else {
       video.pause();
       video.currentTime = 0;
@@ -65,7 +76,7 @@ const VideoView = () => {
     >
       <video
         ref={videoRef}
-        src="/moving_up.mp4"
+        src="/PH_ACSENSOR_COMPLETO_FULL.mp4"
         style={{ width: "100%", height: "100%", objectFit: "cover" }}
       />
     </div>

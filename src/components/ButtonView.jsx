@@ -5,7 +5,11 @@ import { database, auth } from "../firebase";
 import { ref, set, onValue } from "firebase/database";
 import "../styles/ButtonView.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowUp, faStop, faWrench } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowUp,
+  faStop,
+  faArrowsRotate,
+} from "@fortawesome/free-solid-svg-icons";
 
 const ButtonView = () => {
   const [elevatorState, setElevatorState] = useAtom(elevatorStateAtom);
@@ -46,6 +50,7 @@ const ButtonView = () => {
         left: 0,
         width: "100vw",
         height: "100vh",
+        backgroundImage: "url(/images/FONDO.png)",
       }}
     >
       <div className="control-panel">
@@ -54,32 +59,48 @@ const ButtonView = () => {
           className="repair-icon"
         >
           <img
-            src="/LOGOS_GEN.iality_web-15.svg"
+            src="/images/BOTON-LOGO.png"
             alt="Repair"
-            style={{ width: "100%", height: "100%" }}
+            style={{ width: "auto", height: "100%" }}
           />
         </div>
         <button
-          className={`elevator-button ${
+          className={`elevator-button-up ${
             elevatorState === "movingUp" || elevatorState === "repaired"
               ? "moving-up"
               : ""
           } ${elevatorState === "emergencyLoop" ? "disabled" : ""}`}
           onClick={() => handleButtonClick("movingUp")}
           disabled={isDisabled}
-        >
-          <FontAwesomeIcon icon={faArrowUp} />
-        </button>
+        ></button>
         <button
-          className={`elevator-button ${
+          className={`elevator-button-stop ${
             elevatorState === "emergencyLoop" ? "disabled" : ""
           }`}
           onClick={() => handleButtonClick("emergency")}
           disabled={isDisabled}
-        >
-          <FontAwesomeIcon icon={faStop} />
-        </button>
+        ></button>
       </div>
+      <button
+        style={{
+          position: "fixed",
+          backgroundColor: "#b9b8bd",
+          color: "black",
+          bottom: 5,
+          right: 5,
+          borderRadius: "50%",
+          fontSize: "1.5rem",
+          width: "4rem",
+          height: "4rem",
+          alignItems: "center",
+          justifyContent: "center",
+          display: "flex",
+        }}
+        disabled={isDisabled}
+        onClick={() => handleButtonClick("restart")}
+      >
+        <FontAwesomeIcon icon={faArrowsRotate} />
+      </button>
     </div>
   );
 };
