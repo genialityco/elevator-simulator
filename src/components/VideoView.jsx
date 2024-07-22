@@ -53,6 +53,8 @@ const VideoView = () => {
     } else if (elevatorState === "restart") {
       video.currentTime = 0;
       video.play();
+    } else if (elevatorState === "emergency") {
+      video.pause();
     } else {
       video.pause();
       video.currentTime = 0;
