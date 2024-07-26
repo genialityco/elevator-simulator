@@ -144,7 +144,7 @@ const LoadingScene = () => {
         muted
         loop
         className="background-video-bn"
-        loading="lazy"
+        preload="auto"
       />
       <video
         src="/humanchain/EXPERIENCIA_UNION_PH_COLOR.mp4"
@@ -153,7 +153,7 @@ const LoadingScene = () => {
         loop
         className="background-video-color"
         style={{ opacity: loadingPercentage / 100 }}
-        loading="lazy"
+        preload="auto"
       />
 
       {showVideo && (
@@ -161,7 +161,7 @@ const LoadingScene = () => {
           src="/humanchain/EXPERIENCIA_CIUDAD_REV3.mp4"
           autoPlay
           className="show-video"
-          loading="lazy"
+          preload="auto"
         />
       )}
 
@@ -179,7 +179,7 @@ const LoadingScene = () => {
           src="/humanchain/0723_2-cut.mp4"
           muted
           className="main-video"
-          loading="lazy"
+          preload="auto"
         />
       </div>
       <div className="loading-percentage">
