@@ -91,7 +91,7 @@ const LoadingScene = () => {
       }
       const timer = setTimeout(() => {
         setShowVideo(true);
-      }, 5000);
+      }, 4000);
       return () => clearTimeout(timer);
     } else {
       setShowVideo(false);
