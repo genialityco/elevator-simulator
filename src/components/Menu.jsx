@@ -25,18 +25,18 @@ const Menu = () => {
           alignItems: "center",
         }}
       >
-        <h1>Menú del simulador</h1>
+        <h1>Menú de experiencias</h1>
         <button
           style={{ width: "50vw", marginBlock: "10px" }}
-          onClick={() => navigate("/buttons")}
+          onClick={() => navigate("/menuelevator")}
         >
-          Vista de botones
+          Experiencia Ascensor
         </button>
         <button
           style={{ width: "50vw", marginBlock: "10px" }}
-          onClick={() => navigate("/videos")}
+          onClick={() => navigate("/menuhumanchain")}
         >
-          Vista del video
+          Experiencia Cadena Humana
         </button>
       </div>
     </div>

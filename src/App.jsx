@@ -2,9 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Menu from './components/Menu';
-import ButtonView from './components/ButtonView';
-import VideoView from './components/VideoView';
+import ButtonView from './components/elevator/ButtonView';
+import VideoView from './components/elevator/VideoView';
+import MenuElevator from './components/elevator/MenuElevator';
+import MenuHumanChain from './components/humanChain/MenuHumanChain';
+import LoadingScene from './components/humanChain/LoadingScene';
 import { auth, signInAnonymously, onAuthStateChanged } from './firebase';
+import Scenes from './components/humanChain/Scenes';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -39,8 +43,11 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Menu />} />
-        <Route path="/buttons" element={<ButtonView />} />
-        <Route path="/videos" element={<VideoView />} />
+        <Route path='/menuelevator' element={<MenuElevator />} />
+        <Route path="/buttonselevator" element={<ButtonView />} />
+        <Route path="/videoselevator" element={<VideoView />} />
+        <Route path="/menuhumanchain" element={<MenuHumanChain />} />
+        <Route path='/loadingescene' element={<Scenes />} />
       </Routes>
     </Router>
   );
