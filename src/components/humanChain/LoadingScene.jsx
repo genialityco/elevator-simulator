@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import "./LoadingScene.css";
 
 const LoadingScene = () => {
@@ -17,6 +17,15 @@ const LoadingScene = () => {
   const audioStartCharge = useRef(null);
   const [showVideo, setShowVideo] = useState(false);
 
+  const updateLoadingPercentage = useCallback(() => {
+    const video = videoRef.current;
+    if (video && video.playbackRate >= 0.1) {
+      const currentTime = video.currentTime;
+      const percentage = (currentTime / video.duration) * 100;
+      setLoadingPercentage(percentage);
+    }
+  }, []);
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -28,35 +37,23 @@ const LoadingScene = () => {
       video.playbackRate = playbackRate;
       if (!audioStartChargePlay) {
         audioStartCharge.current.play();
-      }
-      setAudioStartChargePlay(true);
-      if (!audioStartChargePlay) {
+        setAudioStartChargePlay(true);
         setTimeout(() => {
           video.play();
         }, 4000);
       } else {
         video.play();
       }
-    }
-
-    if (playbackRate === 0) {
+    } else {
       video.pause();
     }
-
-    const updateLoadingPercentage = () => {
-      if (video.playbackRate >= 0.1) {
-        const currentTime = video.currentTime;
-        const percentage = (currentTime / video.duration) * 100;
-        setLoadingPercentage(percentage);
-      }
-    };
 
     video.addEventListener("timeupdate", updateLoadingPercentage);
 
     return () => {
       video.removeEventListener("timeupdate", updateLoadingPercentage);
     };
-  }, [connectedPeople, maxPeople, targetDuration, baseDuration]);
+  }, [connectedPeople, maxPeople, targetDuration, baseDuration, audioStartChargePlay, updateLoadingPercentage]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -71,6 +68,7 @@ const LoadingScene = () => {
 
     const handleEnded = () => {
       clearInterval(intervalRef.current);
+      intervalRef.current = null;
     };
 
     if (video) {
@@ -81,11 +79,10 @@ const LoadingScene = () => {
     return () => {
       if (video) {
         video.removeEventListener("play", handlePlay);
-
         video.removeEventListener("ended", handleEnded);
       }
     };
-  }, [videoRef.current]);
+  }, []);
 
   useEffect(() => {
     if (loadingPercentage >= 90) {
@@ -94,7 +91,7 @@ const LoadingScene = () => {
       }
       const timer = setTimeout(() => {
         setShowVideo(true);
-      }, 6500);
+      }, 5000);
       return () => clearTimeout(timer);
     } else {
       setShowVideo(false);
@@ -137,7 +134,7 @@ const LoadingScene = () => {
         className="input-target-duration"
       />
 
-      <button className="restart-button" onClick={() => restartExperience()}>
+      <button className="restart-button" onClick={() => window.location.reload()}>
         Reiniciar
       </button>
 
@@ -147,6 +144,7 @@ const LoadingScene = () => {
         muted
         loop
         className="background-video-bn"
+        loading="lazy"
       />
       <video
         src="/humanchain/EXPERIENCIA_UNION_PH_COLOR.mp4"
@@ -155,6 +153,7 @@ const LoadingScene = () => {
         loop
         className="background-video-color"
         style={{ opacity: loadingPercentage / 100 }}
+        loading="lazy"
       />
 
       {showVideo && (
@@ -162,6 +161,7 @@ const LoadingScene = () => {
           src="/humanchain/EXPERIENCIA_CIUDAD_REV3.mp4"
           autoPlay
           className="show-video"
+          loading="lazy"
         />
       )}
 
@@ -179,6 +179,7 @@ const LoadingScene = () => {
           src="/humanchain/0723_2-cut.mp4"
           muted
           className="main-video"
+          loading="lazy"
         />
       </div>
       <div className="loading-percentage">
