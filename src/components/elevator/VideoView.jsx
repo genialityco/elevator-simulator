@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import { elevatorStateAtom } from "../../atoms/elevatorAtom";
 import { database } from "../../firebase";
@@ -6,6 +6,7 @@ import { ref, onValue, set } from "firebase/database";
 
 const VideoView = () => {
   const [elevatorState, setElevatorState] = useAtom(elevatorStateAtom);
+  const [initializedMovingUp, setInitializedMovingUp] = useState(false);
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -42,8 +43,13 @@ const VideoView = () => {
     video.addEventListener("timeupdate", handleTimeUpdate);
 
     if (elevatorState === "movingUp") {
-      video.currentTime = 19;
-      video.play();
+      if (!initializedMovingUp) {
+        setInitializedMovingUp(true);
+        video.currentTime = 19;
+        video.play();
+      } else {
+        video.play();
+      }
     } else if (elevatorState === "emergencyLoop") {
       video.currentTime = 30;
       video.play();
@@ -52,9 +58,19 @@ const VideoView = () => {
       video.play();
     } else if (elevatorState === "restart") {
       video.currentTime = 0;
+      setInitializedMovingUp(false);
       video.play();
     } else if (elevatorState === "emergency") {
       video.pause();
+    } else if (elevatorState === "forceRestart") {
+      set(ref(database, "elevatorState"), "restart")
+        .then(() => {
+          console.log("Elevator state updated successfully");
+        })
+        .catch((error) => {
+          console.error("Error updating elevator state:", error);
+        });
+      location.reload();
     } else {
       video.pause();
       video.currentTime = 0;

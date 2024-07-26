@@ -69,6 +69,15 @@
   box-shadow: none;
 }
 
+.elevator-button-stop.emergency {
+  background-image: url("/images/TABLERO_BOTON_STOP_02.png");
+  color: white;
+}
+
+.elevator-button-stop.emergency {
+  animation: blink 1s infinite;
+}
+
 @keyframes blink {
   50% {
     opacity: 0.5;
