@@ -1,31 +1,16 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useContext, useCallback } from "react";
 import "./LoadingScene.css";
-import {
-  SensorContext,
-  SensorDispatchContext,
-  formatBytes,
-} from "../SensorContextProvider";
-import { database, auth } from "../../firebase";
+import { SensorContext, SensorDispatchContext, formatBytes } from "../SensorContextProvider";
+import { database } from "../../firebase";
 import { ref, onValue, set } from "firebase/database";
 
 const LoadingScene = () => {
-  const sensorData = React.useContext(SensorContext);
-  const [connectedPeople, setConnectedPeople] = useState(0);
-  const [maxPeople, setMaxPeople] = useState(100);
-  const [baseDuration, setBaseDuration] = useState(61);
-  const [targetDuration, setTargetDuration] = useState(30);
+  const sensorData = useContext(SensorContext);
+  const setSensorData = useContext(SensorDispatchContext);
   const [loadingPercentage, setLoadingPercentage] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [manualMode, setManualMode] = useState(false);
   const intervalRef = useRef(null);
-
   const [audioStartChargePlay, setAudioStartChargePlay] = useState(false);
-
-  const [
-    constanteConversionSensorAPersonas,
-    setConstanteConversionSensorAPersonas,
-  ] = useState(180000);
-
   const videoRef = useRef(null);
   const audioFinishRef = useRef(null);
   const audioStartCharge = useRef(null);
@@ -44,75 +29,46 @@ const LoadingScene = () => {
     const manualModeRef = ref(database, `manualModeSettings`);
     onValue(manualModeRef, (snapshot) => {
       if (snapshot.val().manualMode) {
-        setManualMode(snapshot.val().manualMode);
-        setConnectedPeople(snapshot.val().connectedPeople);
+        setSensorData(prevState => ({
+          ...prevState,
+          manualMode: snapshot.val().manualMode,
+          connectedPeople: snapshot.val().connectedPeople,
+          maxPeople: snapshot.val().maxPeople,
+          baseDuration: snapshot.val().baseDuration,
+          targetDuration: snapshot.val().targetDuration
+        }));
       }
-      setMaxPeople(snapshot.val().maxPeople);
-      setBaseDuration(snapshot.val().baseDuration);
-      setTargetDuration(snapshot.val().targetDuration);
-    });
-  }, [manualMode]);
-
-  useEffect(() => {
-    const constanteConversionSensorAPersonasRef = ref(
-      database,
-      "constanteDeConversion"
-    );
-    onValue(constanteConversionSensorAPersonasRef, (snapshot) => {
-      setConstanteConversionSensorAPersonas(snapshot.val());
     });
   }, []);
 
   useEffect(() => {
-    console.log(
-      "cambio detectado en respromedio",
-      sensorData.valores.respromedio
-    );
-    //LIMITE SUPERIOR TEMPORAL un valor muy grande indica que nadie esta conectado
-    //cuidado por que puede indicar muchos conectados
+    const constanteConversionSensorAPersonasRef = ref(database, "constanteDeConversion");
+    onValue(constanteConversionSensorAPersonasRef, (snapshot) => {
+
+      setSensorData(prevState => ({ ...prevState, constanteConversionSensorAPersonas: snapshot.val() }));
+    });
+  }, []);
+
+  useEffect(() => {
     if (sensorData.valores.respromedio > 50000000) {
-      setConnectedPeople(0);
-      set(database);
+      setSensorData(prevState => ({ ...prevState, connectedPeople: 0 }));
       return;
     }
 
-    //El sensor esta calibrado para que mas o menos cada persona
-    //sea 1millon en resistencia dependiendo de la cantidad de millones es la cantidad de personas
-    //aqui escalamos el valor para que coincida con el valor de personas
-    //cada millon en numero del sensor contamos una persona
-
-    if (!manualMode) {
-      let numeropersonas = Math.round(
-        sensorData.valores.respromedio / constanteConversionSensorAPersonas
-      );
-      console.log(
-        "cambio detectado en respromedio",
-        sensorData.valores.respromedio,
-        numeropersonas
-      );
-      setConnectedPeople(numeropersonas);
-
-      const user = auth.currentUser;
-      if (user) {
-        const userRef = ref(database, `manualModeSettings`);
-        set(userRef, {
-          connectedPeople: numeropersonas,
-        });
-      }
+    if (!sensorData.manualMode) {
+      let numeropersonas = Math.round(sensorData.valores.respromedio / sensorData.constanteConversionSensorAPersonas);
+      setSensorData(prevState => ({ ...prevState, connectedPeople: numeropersonas }));
     }
-  }, [sensorData.valores.respromedio, manualMode]);
+  }, [sensorData.valores.respromedio, sensorData.manualMode]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const basePlaybackRate = baseDuration / targetDuration;
-    const playbackRate = (connectedPeople * basePlaybackRate) / maxPeople;
+    const basePlaybackRate = sensorData.baseDuration / sensorData.targetDuration;
+    const playbackRate = (sensorData.connectedPeople * basePlaybackRate) / sensorData.maxPeople;
 
-    //probando por que se tenia 0.1 y no 0.01
-    //es un limite para un fallo en opera que se rompe cual es este limite (0.0625 en chrome)
     if (playbackRate >= 0.07) {
-      //para tener dos puntos decimales nomas
       video.playbackRate = Math.round(playbackRate * 100) / 100;
       if (!audioStartChargePlay) {
         audioStartCharge.current.play();
@@ -133,10 +89,10 @@ const LoadingScene = () => {
       video.removeEventListener("timeupdate", updateLoadingPercentage);
     };
   }, [
-    connectedPeople,
-    maxPeople,
-    targetDuration,
-    baseDuration,
+    sensorData.connectedPeople,
+    sensorData.maxPeople,
+    sensorData.targetDuration,
+    sensorData.baseDuration,
     audioStartChargePlay,
     updateLoadingPercentage,
   ]);
@@ -184,46 +140,14 @@ const LoadingScene = () => {
     }
   }, [loadingPercentage]);
 
-  const batteryChargePercentage = (connectedPeople / maxPeople) * 100;
+  const batteryChargePercentage = (sensorData.connectedPeople / sensorData.maxPeople) * 100;
 
   return (
     <div className="loading-scene">
       <audio ref={audioStartCharge} src="/humanchain/charging.mp3" />
       <audio ref={audioFinishRef} src="/humanchain/shield-recharging.mp3" />
-      {/* <input
-        type="number"
-        min={0}
-        value={connectedPeople}
-        onChange={(e) => setConnectedPeople(Number(e.target.value))}
-        placeholder="Enter number of connected people"
-        className="input-connected-people"
-      />
-      <input
-        type="number"
-        value={maxPeople}
-        onChange={(e) => setMaxPeople(Number(e.target.value))}
-        placeholder="Enter maximum number of people"
-        className="input-max-people"
-      />
-      <input
-        type="number"
-        value={baseDuration}
-        onChange={(e) => setBaseDuration(Number(e.target.value))}
-        placeholder="Enter base duration"
-        className="input-base-duration"
-      />
-      <input
-        type="number"
-        value={targetDuration}
-        onChange={(e) => setTargetDuration(Number(e.target.value))}
-        placeholder="Enter target duration"
-        className="input-target-duration"
-      /> */}
 
-      <button
-        className="restart-button"
-        onClick={() => window.location.reload()}
-      >
+      <button className="restart-button" onClick={() => window.location.reload()}>
         Reiniciar
       </button>
 
@@ -256,9 +180,7 @@ const LoadingScene = () => {
 
       {!audioStartChargePlay && (
         <div className="prompt-connection">
-          <p>
-            ¡Todos conectados, démonos las manos y formemos una Cadena humana!
-          </p>
+          <p>¡Todos conectados, démonos las manos y formemos una Cadena humana!</p>
         </div>
       )}
 
@@ -271,20 +193,13 @@ const LoadingScene = () => {
           loading="eager"
         />
       </div>
-      <div className="loading-percentage">{`Loading: ${loadingPercentage.toFixed(
-        2
-      )}%`}</div>
+      <div className="loading-percentage">{`Loading: ${loadingPercentage.toFixed(2)}%`}</div>
       <div className="battery-charge-bar">
-        <div
-          className="battery-charge-level"
-          style={{ width: `${batteryChargePercentage}%` }}
-        />
+        <div className="battery-charge-level" style={{ width: `${batteryChargePercentage}%` }} />
       </div>
-      <div className="people-percentage">{`Porcentaje de personas: ${batteryChargePercentage.toFixed(
-        2
-      )}%`}</div>
+      <div className="people-percentage">{`Porcentaje de personas: ${batteryChargePercentage.toFixed(2)}%`}</div>
 
-      {!audioStartChargePlay && connectedPeople > 0 && (
+      {!audioStartChargePlay && sensorData.connectedPeople > 0 && (
         <div className="not-enough-people">
           <span>¡Faltan personas para comenzar la carga de energía!</span>
         </div>
