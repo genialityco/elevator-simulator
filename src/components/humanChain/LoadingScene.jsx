@@ -1,7 +1,12 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import "./LoadingScene.css";
+import { SensorContext, SensorDispatchContext, formatBytes } from "../SensorContextProvider";
+
+
+const CONSTANTE_CONVERSION_SENSOR_A_PERSONAS = 180000
 
 const LoadingScene = () => {
+  const sensorData = React.useContext(SensorContext);
   const [connectedPeople, setConnectedPeople] = useState(0);
   const [maxPeople, setMaxPeople] = useState(100);
   const [baseDuration, setBaseDuration] = useState(61);
@@ -27,14 +32,37 @@ const LoadingScene = () => {
   }, []);
 
   useEffect(() => {
+    console.log('cambio detectado en respromedio',sensorData.valores.respromedio)
+    //LIMITE SUPERIOR TEMPORAL un valor muy grande indica que nadie esta conectado
+    //cuidado por que puede indicar muchos conectados
+    if (sensorData.valores.respromedio > 50000000) {
+      setConnectedPeople(0);
+      return;
+    }
+   
+    //El sensor esta calibrado para que mas o menos cada persona
+    //sea 1millon en resistencia dependiendo de la cantidad de millones es la cantidad de personas
+    //aqui escalamos el valor para que coincida con el valor de personas
+    //cada millon en numero del sensor contamos una persona
+
+    let numeropersonas = Math.round(sensorData.valores.respromedio / CONSTANTE_CONVERSION_SENSOR_A_PERSONAS);
+    console.log('cambio detectado en respromedio',sensorData.valores.respromedio,numeropersonas)
+    setConnectedPeople(numeropersonas)
+    //setConnectedPeople
+  }, [sensorData.valores.respromedio]);
+
+  useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const basePlaybackRate = baseDuration / targetDuration;
     const playbackRate = (connectedPeople * basePlaybackRate) / maxPeople;
 
-    if (playbackRate >= 0.1) {
-      video.playbackRate = playbackRate;
+    //probando por que se tenia 0.1 y no 0.01
+    //es un limite para un fallo en opera que se rompe cual es este limite (0.0625 en chrome)
+    if (playbackRate >= 0.07) {
+      //para tener dos puntos decimales nomas
+      video.playbackRate = Math.round(playbackRate * 100) / 100;
       if (!audioStartChargePlay) {
         audioStartCharge.current.play();
         setAudioStartChargePlay(true);
@@ -112,6 +140,7 @@ const LoadingScene = () => {
         placeholder="Enter number of connected people"
         className="input-connected-people"
       />
+      <label> Máx people
       <input
         type="number"
         value={maxPeople}
@@ -119,6 +148,8 @@ const LoadingScene = () => {
         placeholder="Enter maximum number of people"
         className="input-max-people"
       />
+      </label>
+      <p>Max people</p>
       <input
         type="number"
         value={baseDuration}
@@ -157,43 +188,23 @@ const LoadingScene = () => {
       />
 
       {showVideo && (
-        <video
-          src="/humanchain/EXPERIENCIA_CIUDAD_REV3.mp4"
-          autoPlay
-          className="show-video"
-          loading="eager"
-        />
+        <video src="/humanchain/EXPERIENCIA_CIUDAD_REV3.mp4" autoPlay className="show-video" loading="eager" />
       )}
 
       {!audioStartChargePlay && (
         <div className="prompt-connection">
-          <p>
-            ¡Todos conectados, démonos las manos y formemos una Cadena humana!
-          </p>
+          <p>¡Todos conectados, démonos las manos y formemos una Cadena humana!</p>
         </div>
       )}
 
       <div className="main-video-container">
-        <video
-          ref={videoRef}
-          src="/humanchain/0723_2-cut.mp4"
-          muted
-          className="main-video"
-          loading="eager"
-        />
+        <video ref={videoRef} src="/humanchain/0723_2-cut.mp4" muted className="main-video" loading="eager" />
       </div>
-      <div className="loading-percentage">
-        {`Loading: ${loadingPercentage.toFixed(2)}%`}
-      </div>
+      <div className="loading-percentage">{`Loading: ${loadingPercentage.toFixed(2)}%`}</div>
       <div className="battery-charge-bar">
-        <div
-          className="battery-charge-level"
-          style={{ width: `${batteryChargePercentage}%` }}
-        />
+        <div className="battery-charge-level" style={{ width: `${batteryChargePercentage}%` }} />
       </div>
-      <div className="people-percentage">
-        {`Porcentaje de personas: ${batteryChargePercentage.toFixed(2)}%`}
-      </div>
+      <div className="people-percentage">{`Porcentaje de personas: ${batteryChargePercentage.toFixed(2)}%`}</div>
 
       {!audioStartChargePlay && connectedPeople > 0 && (
         <div className="not-enough-people">
