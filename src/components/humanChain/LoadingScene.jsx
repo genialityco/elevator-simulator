@@ -8,8 +8,6 @@ import {
 import { database } from "../../firebase";
 import { ref, onValue, set } from "firebase/database";
 
-const CONSTANTE_CONVERSION_SENSOR_A_PERSONAS = 180000;
-
 const LoadingScene = () => {
   const sensorData = React.useContext(SensorContext);
   const [connectedPeople, setConnectedPeople] = useState(0);
@@ -22,6 +20,11 @@ const LoadingScene = () => {
   const intervalRef = useRef(null);
 
   const [audioStartChargePlay, setAudioStartChargePlay] = useState(false);
+
+  const [
+    constanteConversionSensorAPersonas,
+    setConstanteConversionSensorAPersonas,
+  ] = useState(180000);
 
   const videoRef = useRef(null);
   const audioFinishRef = useRef(null);
@@ -43,12 +46,22 @@ const LoadingScene = () => {
       if (snapshot.val().manualMode) {
         setManualMode(snapshot.val().manualMode);
         setConnectedPeople(snapshot.val().connectedPeople);
-        setMaxPeople(snapshot.val().maxPeople);
-        setBaseDuration(snapshot.val().baseDuration);
-        setTargetDuration(snapshot.val().targetDuration);
       }
+      setMaxPeople(snapshot.val().maxPeople);
+      setBaseDuration(snapshot.val().baseDuration);
+      setTargetDuration(snapshot.val().targetDuration);
     });
   }, [manualMode]);
+
+  useEffect(() => {
+    const constanteConversionSensorAPersonasRef = ref(
+      database,
+      "constanteDeConversion"
+    );
+    onValue(constanteConversionSensorAPersonasRef, (snapshot) => {
+      setConstanteConversionSensorAPersonas(snapshot.val());
+    });
+  }, []);
 
   useEffect(() => {
     console.log(
@@ -69,7 +82,7 @@ const LoadingScene = () => {
 
     if (!manualMode) {
       let numeropersonas = Math.round(
-        sensorData.valores.respromedio / CONSTANTE_CONVERSION_SENSOR_A_PERSONAS
+        sensorData.valores.respromedio / constanteConversionSensorAPersonas
       );
       console.log(
         "cambio detectado en respromedio",

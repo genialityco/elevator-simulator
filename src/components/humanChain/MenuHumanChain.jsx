@@ -20,6 +20,11 @@ const MenuHumanChain = () => {
   const [baseDuration, setBaseDuration] = useState(61);
   const [targetDuration, setTargetDuration] = useState(30);
 
+  const [
+    constanteConversionSensorAPersonas,
+    setConstanteConversionSensorAPersonas,
+  ] = useState(180000);
+
   // Función para manejar el cambio del checkbox
   const handleManualModeChange = (event) => {
     const isChecked = event.target.checked;
@@ -86,6 +91,15 @@ const MenuHumanChain = () => {
         baseDuration,
         targetDuration,
       });
+    }
+  };
+
+  const updateConstanteDeConversion = (value) => {
+    setConstanteConversionSensorAPersonas(value);
+    const user = auth.currentUser;
+    if (user) {
+      const userRef = ref(database, `constanteDeConversion`);
+      set(userRef, value);
     }
   };
 
@@ -224,6 +238,16 @@ const MenuHumanChain = () => {
 
         <div className="display-flex">
           <div className="margin-right-15">
+            <label className="display-flex flex-direction-column">
+              Constante de conversión
+              <input
+                type="number"
+                value={constanteConversionSensorAPersonas}
+                onChange={(e) => updateConstanteDeConversion(Number(e.target.value))}
+                className="input-global"
+              />
+            </label>
+
             <p>
               Puerto: {JSON.stringify(sensorData?.port?.getInfo()) || "Ninguno"}{" "}
             </p>
