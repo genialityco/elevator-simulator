@@ -98,14 +98,15 @@ const LoadingScene = () => {
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-
+  
     const basePlaybackRate = baseDuration / targetDuration;
-    const playbackRate = (connectedPeople * basePlaybackRate) / maxPeople;
-
-    //probando por que se tenia 0.1 y no 0.01
-    //es un limite para un fallo en opera que se rompe cual es este limite (0.0625 en chrome)
+    let playbackRate = (connectedPeople * basePlaybackRate) / maxPeople;
+  
+    // Limitar el playbackRate entre 0.5 y 4.0
+    playbackRate = Math.max(0.5, Math.min(playbackRate, 4.0));
+  
     if (playbackRate >= 0.07) {
-      //para tener dos puntos decimales nomas
+      // Redondear a dos decimales
       video.playbackRate = Math.round(playbackRate * 100) / 100;
       if (!audioStartChargePlay) {
         audioStartCharge.current.play();
@@ -119,9 +120,9 @@ const LoadingScene = () => {
     } else {
       video.pause();
     }
-
+  
     video.addEventListener("timeupdate", updateLoadingPercentage);
-
+  
     return () => {
       video.removeEventListener("timeupdate", updateLoadingPercentage);
     };
@@ -133,6 +134,7 @@ const LoadingScene = () => {
     audioStartChargePlay,
     updateLoadingPercentage,
   ]);
+  
 
   useEffect(() => {
     const video = videoRef.current;
