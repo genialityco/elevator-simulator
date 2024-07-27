@@ -59,6 +59,7 @@ const LoadingScene = () => {
       "constanteDeConversion"
     );
     onValue(constanteConversionSensorAPersonasRef, (snapshot) => {
+      console.log(snapshot.val())
       setConstanteConversionSensorAPersonas(snapshot.val());
     });
   }, []);
@@ -272,7 +273,7 @@ const LoadingScene = () => {
           style={{ width: `${batteryChargePercentage}%` }}
         />
       </div>
-      <div className="people-percentage">{`Porcentaje de personas: ${batteryChargePercentage.toFixed(
+      <div className="people-percentage">{`Poder de carga: ${batteryChargePercentage.toFixed(
         2
       )}%`}</div>
 
