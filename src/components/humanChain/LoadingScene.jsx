@@ -59,7 +59,7 @@ const LoadingScene = () => {
       "constanteDeConversion"
     );
     onValue(constanteConversionSensorAPersonasRef, (snapshot) => {
-      console.log(snapshot.val())
+      console.log("Valor constante", snapshot.val())
       setConstanteConversionSensorAPersonas(snapshot.val());
     });
   }, []);
@@ -73,7 +73,6 @@ const LoadingScene = () => {
     //cuidado por que puede indicar muchos conectados
     if (sensorData.valores.respromedio > 50000000) {
       setConnectedPeople(0);
-      set(database, )
       return;
     }
 
@@ -83,6 +82,7 @@ const LoadingScene = () => {
     //cada millon en numero del sensor contamos una persona
 
     if (!manualMode) {
+      console.log(constanteConversionSensorAPersonas)
       let numeropersonas = Math.round(
         sensorData.valores.respromedio / constanteConversionSensorAPersonas
       );
