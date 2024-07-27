@@ -23,7 +23,7 @@ const Scenes = () => {
       <div
         style={{
           position: "absolute",
-          top: "95%",
+          top: "3%",
           left: "1%",
           zIndex: 10,
           color: "black",
@@ -32,13 +32,13 @@ const Scenes = () => {
       >
         <button
           onClick={() => setScene(1)}
-          style={{ backgroundColor: "transparent", fontSize: "0.5rem" }}
+          style={{ backgroundColor: "transparent", fontSize: "0.8rem" }}
         >
           1
         </button>
         <button
           onClick={() => setScene(2)}
-          style={{ backgroundColor: "transparent", fontSize: "0.5rem" }}
+          style={{ backgroundColor: "transparent", fontSize: "0.8rem" }}
         >
           2
         </button>

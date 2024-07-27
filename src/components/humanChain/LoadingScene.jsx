@@ -5,7 +5,7 @@ import {
   SensorDispatchContext,
   formatBytes,
 } from "../SensorContextProvider";
-import { database } from "../../firebase";
+import { database, auth } from "../../firebase";
 import { ref, onValue, set } from "firebase/database";
 
 const LoadingScene = () => {
@@ -72,6 +72,7 @@ const LoadingScene = () => {
     //cuidado por que puede indicar muchos conectados
     if (sensorData.valores.respromedio > 50000000) {
       setConnectedPeople(0);
+      set(database);
       return;
     }
 
@@ -90,6 +91,14 @@ const LoadingScene = () => {
         numeropersonas
       );
       setConnectedPeople(numeropersonas);
+
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = ref(database, `manualModeSettings`);
+        set(userRef, {
+          connectedPeople: numeropersonas,
+        });
+      }
     }
   }, [sensorData.valores.respromedio, manualMode]);
 
