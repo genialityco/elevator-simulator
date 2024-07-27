@@ -103,7 +103,7 @@ const LoadingScene = () => {
     let playbackRate = (connectedPeople * basePlaybackRate) / maxPeople;
   
     // Limitar el playbackRate entre 0.5 y 4.0
-    playbackRate = Math.max(0.5, Math.min(playbackRate, 4.0));
+    playbackRate = Math.max(0.1, Math.min(playbackRate, 4.0));
   
     if (playbackRate >= 0.07) {
       // Redondear a dos decimales
